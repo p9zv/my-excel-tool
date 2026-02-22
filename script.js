@@ -1,77 +1,116 @@
-let SESSION=null;
+/* ===============================
+   محرك قراءة وتنظيف ملفات Excel
+   =============================== */
 
-async function upload(){
-let file=document.getElementById("file").files[0];
-let form=new FormData();
-form.append("file",file);
-let res=await fetch("/upload",{method:"POST",body:form});
-let data=await res.json();
-SESSION=data.session;
-loadTable();
-fillColumns(data.columns);
-}
+let workbook;
+let worksheet;
+let jsonData = null;
 
-async function loadTable(){
-let res=await fetch("/table/"+SESSION);
-let rows=await res.json();
-let table=document.getElementById("table");
-table.innerHTML="";
-if(rows.length==0)return;
-let header="<tr>";
-Object.keys(rows[0]).forEach(c=>header+="<th>"+c+"</th>");
-header+="</tr>";
-table.innerHTML+=header;
-rows.forEach(r=>{
-let tr="<tr>";
-Object.values(r).forEach(v=>tr+="<td>"+v+"</td>");
-tr+="</tr>";
-table.innerHTML+=tr;
+/* ===== عند رفع الملف ===== */
+document.getElementById("fileInput").addEventListener("change", function (e) {
+
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+
+        const data = new Uint8Array(event.target.result);
+
+        // قراءة ملف الاكسل
+        workbook = XLSX.read(data, { type: "array" });
+
+        const firstSheet = workbook.SheetNames[0];
+        worksheet = workbook.Sheets[firstSheet];
+
+        // تحويل الاكسل الى مصفوفة
+        jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        alert("✔ تم رفع الملف بنجاح");
+    };
+
+    reader.readAsArrayBuffer(file);
 });
+
+
+/* ===== توحيد الحروف العربية ===== */
+function normalizeArabic(text) {
+
+    if (!text) return "";
+
+    return text.toString()
+        .replace(/[إأآا]/g, "ا")
+        .replace(/ى/g, "ي")
+        .replace(/ؤ/g, "و")
+        .replace(/ئ/g, "ي")
+        .replace(/ة/g, "ه")
+        .replace(/[ًٌٍَُِّْ]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
 }
 
-async function searchData(){
-let text=document.getElementById("search").value;
-let res=await fetch("/search",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({session:SESSION,text:text})});
-let rows=await res.json();
-let table=document.getElementById("table");
-table.innerHTML="";
-rows.forEach(r=>{
-let tr="<tr>";
-Object.values(r).forEach(v=>tr+="<td>"+v+"</td>");
-tr+="</tr>";
-table.innerHTML+=tr;
-});
-}
 
-function fillColumns(cols){
-let sel=document.getElementById("columns");
-let rep=document.getElementById("replaceCol");
-cols.forEach(c=>{
-sel.innerHTML+=`<option>${c}</option>`;
-rep.innerHTML+=`<option>${c}</option>`;
-});
-}
+/* ===== تنظيف الملف ===== */
+function processFile() {
 
-async function deleteCols(){
-let sel=document.getElementById("columns");
-let selected=[...sel.selectedOptions].map(o=>o.value);
-await fetch("/delete",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({session:SESSION,columns:selected})});
-loadTable();
-}
+    const searchValue = document.getElementById("searchText").value;
+    const search = normalizeArabic(searchValue);
 
-async function replaceValue(){
-await fetch("/replace",{method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-session:SESSION,
-column:document.getElementById("replaceCol").value,
-old:document.getElementById("old").value,
-new:document.getElementById("new").value
-})});
-loadTable();
-}
+    if (!jsonData) {
+        alert("⚠ ارفع ملف Excel أولاً");
+        return;
+    }
 
-function download(){
-window.location="/download/"+SESSION;
+    if (search === "") {
+        alert("⚠ اكتب كلمة للبحث");
+        return;
+    }
+
+    let result = [];
+
+    // المرور على جميع الصفوف
+    for (let i = 0; i < jsonData.length; i++) {
+
+        let row = jsonData[i];
+        if (!row) continue;
+
+        let rowText = normalizeArabic(row.join(" "));
+
+        // إذا لم يحتوي الكلمة → احتفظ بالصف
+        if (!rowText.includes(search)) {
+            result.push(row);
+        }
+    }
+
+    if (result.length === 0) {
+        alert("لم يتم العثور على بيانات بعد التنظيف");
+        return;
+    }
+
+    /* ===== إنشاء ملف Excel جديد ===== */
+
+    const newSheet = XLSX.utils.aoa_to_sheet(result);
+    const newWorkbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Cleaned_Data");
+
+    const excelBuffer = XLSX.write(newWorkbook, {
+        bookType: "xlsx",
+        type: "array"
+    });
+
+    const blob = new Blob(
+        [excelBuffer],
+        { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const downloadBtn = document.getElementById("downloadBtn");
+    downloadBtn.href = url;
+    downloadBtn.download = "cleaned_data.xlsx";
+    downloadBtn.style.display = "inline-block";
+    downloadBtn.innerText = "⬇ تحميل الملف بعد التنظيف";
 }
