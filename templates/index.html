@@ -1,42 +1,0 @@
-"}
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<title>منصة تنظيف البيانات العربية</title>
-<link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-
-<h1>📊 منصة تنظيف وتوحيد البيانات العربية</h1>
-
-<input type="file" id="file">
-<button onclick="upload()">رفع الملف</button>
-
-<br><br>
-
-<input type="text" id="search" placeholder="كلمة البحث">
-<button onclick="searchData()">بحث</button>
-
-<br><br>
-
-<select id="columns" multiple></select>
-<button onclick="deleteCols()">حذف الأعمدة</button>
-
-<br><br>
-
-<select id="replaceCol"></select>
-<input id="old" placeholder="القيمة القديمة">
-<input id="new" placeholder="القيمة الجديدة">
-<button onclick="replaceValue()">استبدال</button>
-
-<br><br>
-
-<button onclick="download()">تحميل الملف</button>
-
-<table id="table"></table>
-
-<script src="/static/script.js"></script>
-
-</body>
-</html>
