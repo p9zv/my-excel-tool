@@ -1,42 +1,65 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>منصة تنظيف البيانات العربية</title>
+<title>منصة تنظيف وتوحيد البيانات العربية</title>
 
 <link rel="stylesheet" href="style.css">
 
-<!-- مكتبة قراءة ملفات الاكسل -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<!-- مكتبة قراءة الاكسل -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
 
 <div class="container">
-    <h1>📊 منصة تنظيف البيانات العربية</h1>
 
-    <p>ارفع ملف Excel وسيتم تنظيفه مباشرة</p>
+<h1>📊 منصة تنظيف وتوحيد البيانات العربية</h1>
 
-    <input type="file" id="fileInput" accept=".xlsx,.xls">
+<input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
 
-    <br><br>
+<div id="tools" style="display:none">
 
-    <label>البحث داخل البيانات:</label>
-    <input type="text" id="searchText" placeholder="اكتب كلمة لحذف الصفوف التي تحتويها">
+<hr>
 
-    <br><br>
+<h3>🔎 البحث داخل الجدول</h3>
+<input type="text" id="searchBox" placeholder="اكتب كلمة للبحث">
 
-    <button onclick="processFile()">تنظيف الملف</button>
+<div id="tableArea"></div>
 
-    <br><br>
+<hr>
 
-    <a id="downloadBtn" style="display:none">تحميل الملف بعد التنظيف</a>
+<h3>🧹 حذف أعمدة</h3>
+<select id="columnDelete" multiple></select>
+<button onclick="deleteColumns()">تنفيذ الحذف</button>
+
+<hr>
+
+<h3>🔁 استبدال داخل عمود</h3>
+<select id="replaceColumn"></select>
+<input id="oldValue" placeholder="القيمة القديمة">
+<input id="newValue" placeholder="القيمة الجديدة">
+<button onclick="replaceValues()">تنفيذ الاستبدال</button>
+
+<hr>
+
+<h3>🧠 توحيد الأسماء المتشابهة</h3>
+<select id="similarColumn"></select>
+<button onclick="findSimilar()">فحص التكرارات</button>
+
+<div id="similarResults"></div>
+
+<br>
+<button onclick="undo()">↩️ تراجع</button>
+<br><br>
+
+<button onclick="downloadFile()">⬇️ تحميل الملف بعد التنظيف</button>
+
+</div>
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
