@@ -1,0 +1,21 @@
+body{
+direction:rtl;
+background:#020617;
+color:white;
+text-align:center;
+font-family:Arial;
+}
+button{
+padding:10px;
+margin:5px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:10px;
+}
+table,td,th{
+border:1px solid #555;
+border-collapse:collapse;
+padding:5px;
+margin:auto;
+}
