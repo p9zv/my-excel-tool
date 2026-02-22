@@ -1,42 +1,42 @@
-"}
+
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>منصة تنظيف البيانات العربية</title>
-<link rel="stylesheet" href="/static/style.css">
+
+<link rel="stylesheet" href="style.css">
+
+<!-- مكتبة قراءة ملفات الاكسل -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
+
 <body>
 
-<h1>📊 منصة تنظيف وتوحيد البيانات العربية</h1>
+<div class="container">
+    <h1>📊 منصة تنظيف البيانات العربية</h1>
 
-<input type="file" id="file">
-<button onclick="upload()">رفع الملف</button>
+    <p>ارفع ملف Excel وسيتم تنظيفه مباشرة</p>
 
-<br><br>
+    <input type="file" id="fileInput" accept=".xlsx,.xls">
 
-<input type="text" id="search" placeholder="كلمة البحث">
-<button onclick="searchData()">بحث</button>
+    <br><br>
 
-<br><br>
+    <label>البحث داخل البيانات:</label>
+    <input type="text" id="searchText" placeholder="اكتب كلمة لحذف الصفوف التي تحتويها">
 
-<select id="columns" multiple></select>
-<button onclick="deleteCols()">حذف الأعمدة</button>
+    <br><br>
 
-<br><br>
+    <button onclick="processFile()">تنظيف الملف</button>
 
-<select id="replaceCol"></select>
-<input id="old" placeholder="القيمة القديمة">
-<input id="new" placeholder="القيمة الجديدة">
-<button onclick="replaceValue()">استبدال</button>
+    <br><br>
 
-<br><br>
+    <a id="downloadBtn" style="display:none">تحميل الملف بعد التنظيف</a>
+</div>
 
-<button onclick="download()">تحميل الملف</button>
-
-<table id="table"></table>
-
-<script src="/static/script.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
