@@ -1,116 +1,116 @@
-/* ===============================
-   محرك قراءة وتنظيف ملفات Excel
-   =============================== */
+let data = [];
+let headers = [];
+let history = [];
 
-let workbook;
-let worksheet;
-let jsonData = null;
-
-/* ===== عند رفع الملف ===== */
-document.getElementById("fileInput").addEventListener("change", function (e) {
-
+/* رفع الملف */
+document.getElementById("fileInput").addEventListener("change", function(e){
     const file = e.target.files[0];
-    if (!file) return;
-
     const reader = new FileReader();
 
-    reader.onload = function (event) {
+    reader.onload = function(evt){
+        const workbook = XLSX.read(evt.target.result, {type:'binary'});
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, {header:1});
 
-        const data = new Uint8Array(event.target.result);
+        headers = json[0];
+        data = json.slice(1);
 
-        // قراءة ملف الاكسل
-        workbook = XLSX.read(data, { type: "array" });
+        document.getElementById("tools").style.display="block";
 
-        const firstSheet = workbook.SheetNames[0];
-        worksheet = workbook.Sheets[firstSheet];
-
-        // تحويل الاكسل الى مصفوفة
-        jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        alert("✔ تم رفع الملف بنجاح");
+        fillColumnSelectors();
+        renderTable(data);
     };
 
-    reader.readAsArrayBuffer(file);
+    reader.readAsBinaryString(file);
 });
 
+/* عرض الجدول */
+function renderTable(rows){
+    let html="<table border='1' style='width:100%;background:white;color:black'>";
+    html+="<tr>";
+    headers.forEach(h=>html+="<th>"+h+"</th>");
+    html+="</tr>";
 
-/* ===== توحيد الحروف العربية ===== */
-function normalizeArabic(text) {
-
-    if (!text) return "";
-
-    return text.toString()
-        .replace(/[إأآا]/g, "ا")
-        .replace(/ى/g, "ي")
-        .replace(/ؤ/g, "و")
-        .replace(/ئ/g, "ي")
-        .replace(/ة/g, "ه")
-        .replace(/[ًٌٍَُِّْ]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toLowerCase();
-}
-
-
-/* ===== تنظيف الملف ===== */
-function processFile() {
-
-    const searchValue = document.getElementById("searchText").value;
-    const search = normalizeArabic(searchValue);
-
-    if (!jsonData) {
-        alert("⚠ ارفع ملف Excel أولاً");
-        return;
-    }
-
-    if (search === "") {
-        alert("⚠ اكتب كلمة للبحث");
-        return;
-    }
-
-    let result = [];
-
-    // المرور على جميع الصفوف
-    for (let i = 0; i < jsonData.length; i++) {
-
-        let row = jsonData[i];
-        if (!row) continue;
-
-        let rowText = normalizeArabic(row.join(" "));
-
-        // إذا لم يحتوي الكلمة → احتفظ بالصف
-        if (!rowText.includes(search)) {
-            result.push(row);
-        }
-    }
-
-    if (result.length === 0) {
-        alert("لم يتم العثور على بيانات بعد التنظيف");
-        return;
-    }
-
-    /* ===== إنشاء ملف Excel جديد ===== */
-
-    const newSheet = XLSX.utils.aoa_to_sheet(result);
-    const newWorkbook = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Cleaned_Data");
-
-    const excelBuffer = XLSX.write(newWorkbook, {
-        bookType: "xlsx",
-        type: "array"
+    rows.forEach(r=>{
+        html+="<tr>";
+        headers.forEach((h,i)=>{
+            html+="<td>"+(r[i]||"")+"</td>";
+        });
+        html+="</tr>";
     });
 
-    const blob = new Blob(
-        [excelBuffer],
-        { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+    html+="</table>";
+    document.getElementById("tableArea").innerHTML=html;
+}
+
+/* البحث */
+document.getElementById("searchBox").addEventListener("input", function(){
+    const val=this.value.toLowerCase();
+
+    const filtered=data.filter(row =>
+        row.join(" ").toLowerCase().includes(val)
     );
 
-    const url = URL.createObjectURL(blob);
+    renderTable(filtered);
+});
 
-    const downloadBtn = document.getElementById("downloadBtn");
-    downloadBtn.href = url;
-    downloadBtn.download = "cleaned_data.xlsx";
-    downloadBtn.style.display = "inline-block";
-    downloadBtn.innerText = "⬇ تحميل الملف بعد التنظيف";
+/* ملء القوائم */
+function fillColumnSelectors(){
+    const selects=["columnDelete","replaceColumn","similarColumn"];
+
+    selects.forEach(id=>{
+        const s=document.getElementById(id);
+        s.innerHTML="";
+        headers.forEach((h,i)=>{
+            const opt=document.createElement("option");
+            opt.value=i;
+            opt.textContent=h;
+            s.appendChild(opt);
+        });
+    });
+}
+
+/* حذف الأعمدة */
+function deleteColumns(){
+    history.push(JSON.stringify(data));
+
+    const selected=[...document.getElementById("columnDelete").selectedOptions].map(o=>parseInt(o.value));
+
+    headers=headers.filter((_,i)=>!selected.includes(i));
+    data=data.map(row=>row.filter((_,i)=>!selected.includes(i)));
+
+    fillColumnSelectors();
+    renderTable(data);
+}
+
+/* استبدال */
+function replaceValues(){
+    history.push(JSON.stringify(data));
+
+    const col=parseInt(document.getElementById("replaceColumn").value);
+    const oldVal=document.getElementById("oldValue").value;
+    const newVal=document.getElementById("newValue").value;
+
+    data=data.map(row=>{
+        if(String(row[col])===oldVal) row[col]=newVal;
+        return row;
+    });
+
+    renderTable(data);
+}
+
+/* التراجع */
+function undo(){
+    if(history.length>0){
+        data=JSON.parse(history.pop());
+        renderTable(data);
+    }
+}
+
+/* تحميل */
+function downloadFile(){
+    const sheet=XLSX.utils.aoa_to_sheet([headers,...data]);
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,sheet,"Cleaned");
+    XLSX.writeFile(wb,"cleaned_data.xlsx");
 }
