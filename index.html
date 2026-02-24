@@ -1,64 +1,11 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Build Connect - ملف المهندس</title>
-    <style>
-        :root {
-            --primary-yellow: #f1c40f; /* اللون الأصفر من صورتك */
-            --dark-grey: #2c3e50;
-            --light-grey: #ecf0f1;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0; }
-        .header { background: white; padding: 20px; text-align: right; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: bold; font-size: 24px; color: var(--dark-grey); }
-        .logo span { color: var(--primary-yellow); }
-        
-        .profile-card { background: white; max-width: 800px; margin: 40px auto; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .profile-img { width: 150px; height: 150px; border-radius: 50%; border: 5px solid var(--primary-yellow); object-fit: cover; }
-        .engineer-name { margin-top: 15px; font-size: 28px; color: var(--dark-grey); }
-        .specialty { color: #7f8c8d; font-size: 18px; margin-bottom: 20px; }
-        
-        .stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; }
-        .stat-item { background: var(--light-grey); padding: 15px 25px; border-radius: 10px; }
-        .stat-num { display: block; font-weight: bold; font-size: 20px; color: var(--primary-yellow); }
-
-        .portfolio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
-        .portfolio-item { aspect-ratio: 1; background: #ddd; border-radius: 8px; overflow: hidden; position: relative; cursor: pointer; }
-        .portfolio-item img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .contact-btn { background: var(--primary-yellow); color: var(--dark-grey); padding: 12px 40px; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .contact-btn:hover { transform: scale(1.05); background: #d4ac0d; }
-    </style>
-</head>
-<body>
-
-<div class="header">
-    <div class="logo">Buildia <span>بنيان</span></div>
-    <div style="color: var(--dark-grey); font-weight: bold;">Build Connect</div>
-</div>
-
-<div class="profile-card">
-    <img src="https://via.placeholder.com/150" alt="Engineer" class="profile-img">
-    <h1 class="engineer-name">م. يوسف الهاشمي</h1>
-    <p class="specialty">مهندس تصميم داخلي وديكور</p>
-    
-    <div class="stats">
-        <div class="stat-item"><span class="stat-num">45</span> مشروعاً</div>
-        <div class="stat-item"><span class="stat-num">4.9</span> تقييم</div>
-        <div class="stat-item"><span class="stat-num">8</span> سنوات خبرة</div>
-    </div>
-
-    <button class="contact-btn">طلب استشارة هندسية</button>
-
-    <h3 style="text-align: right; margin-top: 40px;">معرض الأعمال (تصميم المستقبل)</h3>
-    <div class="portfolio-grid">
-        <div class="portfolio-item"><img src="https://via.placeholder.com/200" alt="Work"></div>
-        <div class="portfolio-item"><img src="https://via.placeholder.com/200" alt="Work"></div>
-        <div class="portfolio-item"><img src="https://via.placeholder.com/200" alt="Work"></div>
+<div style="background: white; border-radius: 15px; padding: 20px; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-bottom: 5px solid #f1c40f;">
+    <h4 style="margin: 0; color: #2c3e50;">📦 طلب توصيل جديد</h4>
+    <hr>
+    <p><b>المتجر:</b> مستودع الخليج لمواد البناء</p>
+    <p><b>الوجهة:</b> حي النرجس (12 كم)</p>
+    <p><b>المواد:</b> 5 أكياس جبس + دهانات</p>
+    <div style="display: flex; gap: 10px;">
+        <button style="flex: 1; padding: 10px; background: #f1c40f; border: none; border-radius: 5px; cursor: pointer;">قبول</button>
+        <button style="flex: 1; padding: 10px; background: #eee; border: none; border-radius: 5px; cursor: pointer;">رفض</button>
     </div>
 </div>
-
-</body>
-</html>
